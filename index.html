@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Видео-фон</title>
+  <meta name="description" content="Лэндинг с адаптивным зацикленным видео-фоном на весь экран." />
+  <style>
+    /* База */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+    }
+
+    /* Обёртка видео на весь экран */
+    .bg {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Само видео */
+    .bg__video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      background: #000;
+    }
+
+    /* На iOS/мобильных высота может «скакать» — подстрахуемся unit’ами */
+    @supports (height: 100dvh) {
+      .bg { height: 100dvh; }
+    }
+
+    /* .bg::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.30));
+    } */
+  </style>
+</head>
+
+<body>
+  <!-- Полноэкранный видео-фон -->
+  <div class="bg" aria-hidden="true">
+    <video
+      class="bg__video"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      poster="https://drive.google.com/file/d/1YgTfUHKTCb6uaDZTF6OVDOKLjw1o5W4A/view?usp=drive_link">
+      <!-- WebM (если есть) -->
+      <!-- <source src="VIDEO.webm" type="video/webm" /> -->
+      <!-- MP4 — максимально совместимый -->
+      <source src="https://drive.google.com/file/d/1HEciK9RohrPFTVYNgQupZnvEbYSnljGw/view?usp=drive_link" type="video/mp4" />
+      Ваш браузер не поддерживает HTML5 video.
+    </video>
+  </div>
+
+  <!-- Если когда-нибудь добавишь контент поверх:
+  <main style="position:relative; z-index:1; color:#fff; padding:24px;">
+    <h1>Заголовок</h1>
+  </main>
+  -->
+
+  <script>
+    // Небольшая страховка: некоторые браузеры могут требовать повторный play() после готовности
+    (function () {
+      const v = document.querySelector('.bg__video');
+      if (!v) return;
+      const tryPlay = () => v.play().catch(() => {/* тихо игнорируем */});
+      // Стартуем
+      tryPlay();
+      // При возврате на вкладку — продолжаем
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && v.paused) tryPlay();
+      });
+    })();
+  </script>
+
+  <noscript>
+    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#000;color:#fff;padding:24px;text-align:center">
+      Для отображения видео включите JavaScript в браузере.
+    </div>
+  </noscript>
+  
+</body>
+</html>
